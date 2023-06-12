@@ -93,7 +93,7 @@ async function run() {
       }
 
       const query = { email: email };
-      // console.log(query)
+ 
       const result = await enrollCollection.find(query).toArray();
       res.send(result)
     })
@@ -105,7 +105,7 @@ async function run() {
 
     app.get('/my-enroll-class', jwtVerify, async (req, res) => {
       const email = req.query.email;
-      // console.log(email)
+    
       if (!email) {
         return res.send([]);
       }
@@ -115,7 +115,7 @@ async function run() {
       }
 
       const query = { email: email };
-      // console.log(query)
+   
       const result = await paymentCollection.find(query).toArray();
       res.send(result)
     })
@@ -254,7 +254,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('this is first side and assignment ')
+  res.send('Sports Academi is Running ')
 })
 app.listen(port, () => {
   console.log(`check at first side ${port}`)
