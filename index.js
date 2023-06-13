@@ -120,19 +120,9 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/users/admin/:email', jwtVerify, async (req, res) => {
-      const email = req.params.email;
+   
 
-      if (req.decoded.email !== email) {
-        res.send({ admin: false })
-      }
-
-      const query = { email: email }
-      const user = await usersCollection.findOne(query);
-      const result = { admin: user?.role === 'admin' }
-      res.send(result);
-    })
-
+     
     app.get('/addClasses', async(req, res)=>{
       const result = await addClassesCollection.find().toArray()
       res.send(result)
