@@ -33,7 +33,7 @@ const jwtVerify = (req, res, next) => {
 
 
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.8efoi6h.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://csemufizul:191002086@cluster0.vjcqvzc.mongodb.net/?retryWrites=true&w=majority`;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.efwmi0g.mongodb.net/?retryWrites=true&w=majority`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -62,8 +62,6 @@ async function run() {
     })
 
 
-
-
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
@@ -75,9 +73,20 @@ async function run() {
       const result = await instractorCollection.find().toArray()
       res.send(result)
     })
-
+    
+    app.post('/instractor', async (req, res) => {
+      const result = await instractorCollection.insertOne(req.body)
+      res.send(result)
+    })
     app.get('/class', async (req, res) => {
       const result = await classCollection.find().toArray()
+      return res.send(result)
+    })
+
+    
+
+    app.post('/class', async (req, res) => {
+      const result = await classCollection.insertOne(req.body)
       return res.send(result)
     })
 
@@ -93,7 +102,7 @@ async function run() {
       }
 
       const query = { email: email };
- 
+      // console.log(query)
       const result = await enrollCollection.find(query).toArray();
       res.send(result)
     })
@@ -102,12 +111,153 @@ async function run() {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
+    app.delete('/user-delete/:id', async (req, res) => {
+      const result = await usersCollection.deleteOne({_id : req.params.id})
+      console.log(req.params.id);
+      res.send(result)
+    })
 
+    app.delete('/users', async (req, res) => {
+      const result = await usersCollection.deleteMany()
+      res.send(result)
+    })
+    
 
-  
+    app.get('/my-enroll-class', jwtVerify, async (req, res) => {
+      const email = req.query.email;
+      // console.log(email)
+      if (!email) {
+        return res.send([]);
+      }
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res.status(403).send({ error: True, message: 'porviden access' })
+      }
 
+      const query = { email: email };
+      // console.log(query)
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    app.get('/users/admin/:email', jwtVerify, async (req, res) => {
+      const email = req.params.email;
+      if (req.decoded.email !== email) {
+        res.send({ admin: false })
+      }
+
+      const query = { email: email }
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === 'admin' }
+      res.send(result);
+    })
+    
+    app.get('/users/instructor/:email', jwtVerify, async (req, res) => {
+      const email = req.params.email;
+      if (req.decoded.email !== email) {
+        res.send({ instructor: false })
+      }
+
+      const query = { email: email }
+      const user = await usersCollection.findOne(query);
+      const result = { instructor: user?.role === 'instructor' }
+      res.send(result);
+    })
 
    
+    app.get('/addClasses', async(req, res)=>{
+      const result = await addClassesCollection.find().toArray()
+      res.send(result)
+    
+    })
+    
+
+
+
+
+
+    //  post mathod call 
+
+    app.post('/users', async (req, res) => {
+      console.log(req.body);
+      const user = req.body;
+      const query = { email: user.email }
+      const existing = await usersCollection.findOne(query)
+      if (existing) {
+        return res.send({ message: 'user already exist' })
+      }
+      const result = await usersCollection.insertOne(user)
+      res.send(result)
+    })
+
+    app.post('/all-enroll', async (req, res) => {
+      const enroll = req.body;
+      const result = await enrollCollection.insertOne(enroll);
+      res.send(result)
+    })
+
+
+
+    app.post("/create-payment-intent", jwtVerify, async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      // console.log(price, amount)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      });
+    })
+
+
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentCollection.insertOne(payment)
+
+      const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } }
+      const deleteResult = await enrollCollection.deleteMany(query)
+
+      res.send({ result: insertResult, deleteResult });
+    })
+
+    app.post('/addClass', async (req, res) => {
+      const item = req.body;
+      const result = await addClassesCollection.insertOne(item)
+      res.send(result)
+
+    })
+
+
+    // fatche mathod
+
+
+
+    app.patch('/users/admin/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const updateUser = {
+        $set: {
+          role: 'admin'
+        },
+      }
+      const result = await usersCollection.updateOne(query, updateUser)
+      res.send(result)
+    })
+
+    app.patch('/users/instructor/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const updateUser = {
+        $set: {
+          role: 'instructor'
+        },
+      }
+      const result = await usersCollection.updateOne(query, updateUser)
+      res.send(result)
+    })
 
 
 
@@ -118,12 +268,18 @@ async function run() {
 
 
 
-   
+    app.delete('/enroll/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await enrollCollection.deleteOne(query)
+      res.send(result)
+    })
 
 
 
   } finally {
-   
+    // Ensures that the client will close when you finish/error
+    // await client.close();
   }
 }
 run().catch(console.dir);
@@ -131,7 +287,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('Sports Academi is Running ')
+  res.send('this is first side and assignment ')
 })
 app.listen(port, () => {
   console.log(`check at first side ${port}`)

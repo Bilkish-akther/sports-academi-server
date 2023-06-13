@@ -1,0 +1,40 @@
+get http://localhost:5000/users
+###
+delete http://localhost:5000/users
+
+###
+get http://localhost:5000/instractor
+
+###
+get http://localhost:5000/my-class
+
+###
+PATCH http://localhost:5000/users/admin/64885beaba5f56e62025498a HTTP/1.1
+Content-Type: application/json
+
+{
+ 
+  "role": "admin"
+ 
+}
+
+###
+
+POST  http://localhost:5000/instractor HTTP/1.1
+Content-Type: application/json
+
+{
+    "image":"45",
+    "name":"54",
+    "rating":0,
+    "sport":"name of activity",
+    "email":"n6654ai",
+    "student":190
+}
+
+#  nirob@gmail.com
+#  Password:Ab123?
+# cse.mawlana@gmail.com
+# Ab123?
+
+#cse.mawlana1@gmail.com
