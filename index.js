@@ -122,12 +122,6 @@ async function run() {
 
    
 
-     
-    app.get('/addClasses', async(req, res)=>{
-      const result = await addClassesCollection.find().toArray()
-      res.send(result)
-    
-    })
     
 
 
