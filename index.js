@@ -190,12 +190,7 @@ async function run() {
       res.send({ result: insertResult, deleteResult });
     })
 
-    app.post('/addClass', async (req, res) => {
-      const item = req.body;
-      const result = await addClassesCollection.insertOne(item)
-      res.send(result)
-
-    })
+  
 
 
     // fatche mathod
