@@ -103,48 +103,8 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/my-enroll-class', jwtVerify, async (req, res) => {
-      const email = req.query.email;
-    
-      if (!email) {
-        return res.send([]);
-      }
-      const decodedEmail = req.decoded.email;
-      if (email !== decodedEmail) {
-        return res.status(403).send({ error: True, message: 'porviden access' })
-      }
-
-      const query = { email: email };
-   
-      const result = await paymentCollection.find(query).toArray();
-      res.send(result)
-    })
-
-   
-
-    
-
-
-
-
-
-    //  post mathod
-
-   
-    
-
-
-   
-   
-
 
   
-
-  
-
-
-    // fatche mathod
-
 
 
    
