@@ -214,17 +214,7 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/users/instructor/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const updateUser = {
-        $set: {
-          role: 'instructor'
-        },
-      }
-      const result = await usersCollection.updateOne(query, updateUser)
-      res.send(result)
-    })
+   
 
 
 
